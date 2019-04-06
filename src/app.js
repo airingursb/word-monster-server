@@ -3,6 +3,8 @@ import http from 'http'
 import express from 'express'
 import bodyParser from 'body-parser'
 import index from './routes/index'
+import users from './routes/users'
+import util from './routes/util'
 
 import log4js from 'log4js'
 
@@ -37,6 +39,8 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/', index)
+app.use('/users', users)
+app.use('/util', util)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
