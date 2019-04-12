@@ -23,8 +23,8 @@ Good.belongsToMany(User, { through: Store, foreignKey: 'good_id'})
 User.belongsToMany(Book, { through: Room, foreignKey: 'user_id'})
 Book.belongsToMany(User, { through: Room, foreignKey: 'book_id'})
 
-Word.belongsTo(User, { through: Record, foreignKey: 'word_id'})
-User.belongsTo(Word, { through: Record, foreignKey: 'user_id'})
+Word.belongsToMany(User, { through: Record, foreignKey: 'word_id'})
+User.belongsToMany(Word, { through: Record, foreignKey: 'user_id'})
 
 db.sync()
 
