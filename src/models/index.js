@@ -10,6 +10,7 @@ const Good = db.import('./good')
 const Store = db.import('./store')
 const Room = db.import('./room')
 const Record = db.import('./record')
+const Code = db.import('./code')
 
 User.hasOne(Pet, { foreignKey: 'user_id' })
 Pet.belongsTo(User)
@@ -36,5 +37,6 @@ module.exports = {
   Good,
   Store,
   Room,
-  Record
+  Record,
+  Code
 }
