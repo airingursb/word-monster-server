@@ -1,6 +1,16 @@
 import express from 'express'
 
-import { User, Pet, Code } from '../models'
+import {
+  User,
+  Pet,
+  Code,
+  Record,
+  Store,
+  Room,
+  Book,
+  Good,
+  Word
+} from '../models'
 
 import md5 from 'md5'
 
@@ -129,7 +139,7 @@ router.post('/login', (req, res) => {
 
     const timestamp = Date.now()
     const token = md5Pwd((user.id).toString() + timestamp.toString() + KEY)
-    
+
     return res.json({
       ...MESSAGE.OK,
       data: {
@@ -150,7 +160,23 @@ router.post('/learn', (req, res) => {
 
   const response = async () => {
 
-    return res.json()
+    const record = await Record.findOne({
+      where: {
+        user_id: uid, word_id
+      }
+    })
+
+    if (!record) {
+      await Record.create({
+        user_id: uid, word_id, remember: +score + 50, mark_time: Date.now()
+      })
+    } else {
+      record.mark_time = Date.now()
+      await record.save()
+      await record.increment({ remember: +score })
+    }
+
+    return res.json(MESSAGE.OK)
   }
 
   response()
@@ -159,12 +185,38 @@ router.post('/learn', (req, res) => {
 /* users/buy_good */
 router.post('/buy_good', (req, res) => {
 
-  const { uid, timestamp, token, store_id } = req.body
-  validate(res, true, uid, timestamp, token, store_id)
+  const { uid, timestamp, token, good_id } = req.body
+  validate(res, true, uid, timestamp, token, good_id)
 
   const response = async () => {
 
-    return res.json()
+    const good = await Good.findById(good_id)
+
+    const user = await User.findById(uid)
+
+    if (+user.coins < +good.price) {
+      return res.json(MESSAGE.NOT_ENOUGH_MONEY)
+    }
+
+    await user.decrement({ 'coins': +good.price })
+
+    const store = await Store.findOne({
+      where: {
+        user_id: uid, good_id
+      }
+    })
+
+    if (!store) {
+      await Store.create({
+        user_id: uid,
+        good_id,
+        num: 1
+      })
+    } else {
+      await store.increment('num')
+    }
+
+    return res.json(MESSAGE.OK)
   }
 
   response()
@@ -178,7 +230,31 @@ router.post('/buy_book', (req, res) => {
 
   const response = async () => {
 
-    return res.json()
+    const book = await Book.findById(book_id)
+
+    const user = await User.findById(uid)
+
+    if (+user.coins < +book.price) {
+      return res.json(MESSAGE.NOT_ENOUGH_MONEY)
+    }
+
+    await user.decrement({ 'coins': +book.price })
+
+    const room = await Room.findOne({
+      where: {
+        user_id: uid, book_id
+      }
+    })
+
+    if (!room) {
+      await Room.create({
+        user_id: uid,
+        book_id,
+      })
+    } else {
+      return res.json(MESSAGE.ALREADY_HAVE_BOOK)
+    }
+    return res.json(MESSAGE.OK)
   }
 
   response()
@@ -191,8 +267,11 @@ router.get('/books', (req, res) => {
   validate(res, true, uid, timestamp, token)
 
   const response = async () => {
+    // const books = await Book.findAll({ attributes: ['id', 'name', 'category', 'price', 'pic', 'word_count', 'description'] })
 
-    return res.json()
+    const books = await Book.findAll()
+
+    return res.json({ ...MESSAGE.OK, data: books })
   }
 
   response()
@@ -205,8 +284,8 @@ router.get('/goods', (req, res) => {
   validate(res, true, uid, timestamp, token)
 
   const response = async () => {
-
-    return res.json()
+    const data = await Good.findAll()
+    return res.json({ ...MESSAGE.OK, data })
   }
 
   response()
@@ -219,8 +298,13 @@ router.get('/records', (req, res) => {
   validate(res, true, uid, timestamp, token)
 
   const response = async () => {
-
-    return res.json()
+    const data = await Record.findAll({
+      where: {
+        user_id: uid
+      },
+      include: [Word]
+    })
+    return res.json({ ...MESSAGE.OK, data })
   }
 
   response()
@@ -233,13 +317,15 @@ router.get('/words', (req, res) => {
   validate(res, true, uid, timestamp, token, book_id)
 
   const response = async () => {
-
-    return res.json()
+    const data = await Word.findAll({
+      where: {
+        book_id
+      }
+    })
+    return res.json({ ...MESSAGE.OK, data })
   }
 
   response()
 })
-
-
 
 module.exports = router
