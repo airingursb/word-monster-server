@@ -4,6 +4,7 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import index from './routes/index'
 import users from './routes/users'
+import pets from './routes/pets'
 import util from './routes/util'
 
 import log4js from 'log4js'
@@ -25,14 +26,14 @@ log4js.configure({
 
 const logger = log4js.getLogger('log4jslog')
 
-app.all('*', function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With')
-  res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS')
-  res.header('X-Powered-By', '3.2.1')
-  res.header('Content-Type', 'application/json;charset=utf-8')
-  next()
-})
+// app.all('*', function(req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header('Access-Control-Allow-Headers', 'X-Requested-With')
+//   res.header('Access-Control-Allow-Methods', 'POST,GET')
+//   res.header('X-Powered-By', '3.2.1')
+//   res.header('Content-Type', 'application/json;charset=utf-8')
+//   next()
+// })
 
 app.use(log4js.connectLogger(logger, { level: 'auto' }))
 app.use(bodyParser.json())
@@ -40,6 +41,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/', index)
 app.use('/users', users)
+app.use('/pets', pets)
 app.use('/util', util)
 
 // catch 404 and forward to error handler

@@ -37,6 +37,18 @@ export const MESSAGE = {
     code: 502,
     message: '请求间隔过短',
   },
+  NOT_ENOUGH_MONEY: {
+    code: 505,
+    message: '没有足够的金币',
+  },
+  ALREADY_HAVE_BOOK: {
+    code: 506,
+    message: '已经拥有此书',
+  },
+  NOT_ENOUGH_GOOD: {
+    code: 507,
+    message: '没有足够的物品',
+  },
 }
 
 export const KEY = ''
