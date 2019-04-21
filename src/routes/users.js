@@ -328,4 +328,31 @@ router.get('/words', (req, res) => {
   response()
 })
 
+router.post('/reset_password', (req, res) => {
+
+  const { account, password, code, timestamp } = req.body
+
+  validate(res, false, account, password, code, timestamp)
+
+  const findCode = async () => {
+    return await Code.findOne({ where: { code, timestamp } })
+  }
+
+  const response = async () => {
+    const code = await findCode()
+    if (code) {
+      const user = await User.findOne({ where: { account } })
+      if (!user) {
+        return res.json(MESSAGE.USER_NOT_EXIST)
+      } else {
+        await User.update({ password: md5(password) }, { where: { account } })
+        return res.json(MESSAGE.OK)
+      }
+    }
+    return res.json(MESSAGE.CODE_ERROR)
+  }
+
+  response()
+})
+
 module.exports = router
